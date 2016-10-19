@@ -1938,4 +1938,465 @@ export PKG_CONFIG_PATH=$HOME/usr/local/lib/pkgconfig:$HOME/usr/local/ffmpeg/lib/
 echo ffmpeg -i infile -vf scale=640:360 outfile | \
 tools/graph2dot -o graph.tmp &amp;&amp; \
 dot -Tpng graph.tmp -o graph.png &amp;&amp; \
-display graph.png</rich_text></node></node></cherrytree>
+display graph.png</rich_text></node><node name="Surround 360 SoC" prog_lang="custom-colors" readonly="False" tags="" unique_id="28"><rich_text weight="heavy">360全景相机一体机SoC预研报告</rich_text><rich_text>
+
+</rich_text><rich_text scale="h1">目的</rich_text><rich_text>
+  我们希望能够对360全景相机一体机进行SoC方案选型， 目前还没有详细的需求，但是大致理解一体机，需要如下特征，多路高清Camera的接入和视频捕获，实时视频拼接，视频编码/流化/存储，因此对CPU运算能力，内存，特别是对图像的处理能力有较高的要求。这些是在选型时参考的关键指标。另外考虑到功耗，散热，手持的可能性不大。
+
+</rich_text><rich_text scale="h1">关键性能</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+ 
+
+</rich_text><rich_text scale="h1">SoC清单</rich_text><rich_text>
+
+</rich_text><rich_text scale="h2">NVIDIA Tegra X1/Jetson TX1</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+</rich_text><rich_text scale="h2">NVIDIA Tegra K1/Jetson TK1</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+</rich_text><rich_text scale="h2">NVIDIA Quadro</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+</rich_text><rich_text scale="h2">Intrinsyc Open-Q™ 820 Development Kit</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+</rich_text><rich_text scale="h1">软件栈</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+</rich_text><rich_text scale="h1">测试清单</rich_text><rich_text>
+</rich_text><rich_text justification="left"></rich_text><rich_text>
+
+ 
+
+ 
+</rich_text><table char_offset="191" col_max="400" col_min="40"><row><cell>Feature
+</cell><cell>Description
+</cell></row><row><cell>尺寸
+</cell><cell>一体机，手持或便携，详细尺寸未定
+</cell></row><row><cell>Camera接入数目
+</cell><cell>&gt;=2
+</cell></row><row><cell>每个Camera最大分辨率
+</cell><cell>4K @ 60 fps, 4096 x 4096
+</cell></row><row><cell>Real-time video stitching
+</cell><cell>支持，H264
+</cell></row><row><cell>Stereo audio
+</cell><cell>支持，AAC
+</cell></row><row><cell>Hardware video encoding
+</cell><cell>支持，H264
+</cell></row><row><cell>Hardware audio encoding
+</cell><cell>支持, AAC
+</cell></row><row><cell>Storage
+</cell><cell>支持，MP4
+</cell></row><row><cell>Max LIVE FPS &amp; output resolution
+</cell><cell>支持，4K @ 30 fps, 4096 x 4096
+</cell></row><row><cell>Max VOD FPS &amp; output resolution
+</cell><cell>支持，4K @ 60 fps, 4096 x 4096
+</cell></row><row><cell>Memory
+</cell><cell>&gt;= 4GB
+</cell></row><row><cell>GPU
+</cell><cell>支持
+</cell></row><row><cell>click me</cell><cell>click me</cell></row></table><table char_offset="234" col_max="400" col_min="40"><row><cell>官方参考资料
+</cell><cell>http://www.nvidia.com/object/jetson-tx1-module.html
+https://developer.nvidia.com/embedded/buy/jetson-tx1-devkit
+http://elinux.org/Jetson_TX1  
+</cell></row><row><cell>CPU
+</cell><cell>quad-core ARM Cortex-A57 1.73GHz
+</cell></row><row><cell>GPU
+</cell><cell>256-core Maxwell GPU
+</cell></row><row><cell>Memory
+</cell><cell>4GB LPDDR4
+</cell></row><row><cell>Storage
+</cell><cell>16GB eMMC，SATA, 2x SDcard
+</cell></row><row><cell>Camera
+</cell><cell>12 lanes MIPI CSI 2.0(3x4-lanes/2x6-lanes, 1.5Gbps/lane)，1xUSB3
+</cell></row><row><cell>Encoder &amp; Decoder
+</cell><cell>H.264(Baseline, Main, High), 2160p 30fps | 1080p 120fps
+</cell></row><row><cell>Software Stack
+/ Hardware-accelerated APIs
+</cell><cell>OS：Linux For Tegra，64Bit
+并行计算：CUDA 7.5
+音视频转换：GStreamer-1.0，FFmpeg
+机器视觉：VisionWorks，OpenCV4Tegra
+深度学习：cuDNN
+</cell></row><row><cell>Dimensions
+</cell><cell>50x87mm (1.96&quot; x 3.42&quot;)
+</cell></row><row><cell>Lifecycle Support
+</cell><cell>Jan 2021
+</cell></row><row><cell>click me</cell><cell>click me</cell></row></table><table char_offset="267" col_max="400" col_min="40"><row><cell>官方参考资料
+</cell><cell>http://www.nvidia.com/object/jetson-tk1-embedded-dev-kit.html
+https://developer.nvidia.com/embedded/buy/jetson-tk1-devkit
+http://elinux.org/Jetson_TK1  
+</cell></row><row><cell>CPU
+</cell><cell>quad-core Cortex-A15，2.32GHz
+</cell></row><row><cell>GPU
+</cell><cell>192 -cores Kepler GPU
+</cell></row><row><cell>Memory
+</cell><cell>2GB DDR3L
+</cell></row><row><cell>Storage
+</cell><cell>16GB fast eMMC 4.51，SATA
+</cell></row><row><cell>Camera
+</cell><cell>2 fast CSI-2 MIPI camera ports (one 4-lane and one 1-lane)，1xUSB3
+</cell></row><row><cell>Encoder &amp; Decoder
+</cell><cell>H.264 through Gstreamer
+</cell></row><row><cell>Software Stack
+/ Hardware-accelerated APIs
+</cell><cell>OS：Linux For Tegra，32Bit
+并行计算：CUDA 6.5
+机器视觉：VisionWorks，OpenCV4Tegra
+</cell></row><row><cell>Dimensions
+</cell><cell>5&quot; x 5&quot; (127mm x 127mm) board
+</cell></row><row><cell>Lifecycle Support
+</cell><cell>Jan 2024
+</cell></row><row><cell>click me</cell><cell>click me</cell></row></table><table char_offset="287" col_max="400" col_min="40"><row><cell>官方参考资料
+</cell><cell>https://developer.nvidia.com/vrworks
+https://blogs.nvidia.com/blog/2016/07/25/360-degree-video-stitching/
+</cell></row><row><cell>CPU
+</cell><cell>依赖主机，Mini-ITX架构
+</cell></row><row><cell>GPU
+</cell><cell>Quadro
+</cell></row><row><cell>Memory
+</cell><cell>依赖主机
+</cell></row><row><cell>Storage
+</cell><cell>依赖主机
+</cell></row><row><cell>Camera
+</cell><cell>依赖主机，up to 32
+</cell></row><row><cell>Encoder &amp; Decoder
+</cell><cell>N/A
+</cell></row><row><cell>Software Stack
+/ Hardware-accelerated APIs
+</cell><cell>NVIDIA VRWorks™, VRWorks Audio, VRWorks 360 Video
+</cell></row><row><cell>Dimensions
+</cell><cell>N/A
+</cell></row><row><cell>Lifecycle Support
+</cell><cell>N/A
+</cell></row><row><cell>click me</cell><cell>click me</cell></row></table><table char_offset="331" col_max="400" col_min="40"><row><cell>官方参考资料
+</cell><cell>https://www.intrinsyc.com/snapdragon-embedded-development-kits/snapdragon-820-development-kit/
+</cell></row><row><cell>CPU
+</cell><cell>Qualcomm® Kryo™ CPU, quad core, 64bit, 2.2GHz
+</cell></row><row><cell>GPU
+</cell><cell>Qualcomm® Adreno™ 530 GPU
+</cell></row><row><cell>Memory
+</cell><cell>3GB LPDDR4 RAM (1866MHz )
+</cell></row><row><cell>Storage
+</cell><cell>32GB UFS 2.0 Flash 1-lane, gear 3
+</cell></row><row><cell>Camera
+</cell><cell>3x MIPI-CSI 4-lane, dual ISP, up to 28MP
+</cell></row><row><cell>Encoder &amp; Decoder
+</cell><cell>Qualcomm® Hexagon™ 680 DSP
+</cell></row><row><cell>Software Stack
+/ Hardware-accelerated APIs
+</cell><cell>OS: Android 6.0 (Marshmallow)
+</cell></row><row><cell>Dimensions
+</cell><cell>SOM Dimension 82mm x 42mm
+Carrier Board Dimension 170mm x 170mm
+</cell></row><row><cell>Lifecycle Support
+</cell><cell>N/A
+</cell></row><row><cell>click me</cell><cell>click me</cell></row></table><table char_offset="341" col_max="400" col_min="40"><row><cell>Capture
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>FFmpeg
+</cell><cell>N/A，专用Driver，工业相机不支持V4L2
+</cell></row><row><cell>
+ 
+</cell><cell>Gstreamer
+</cell><cell>N/A，专用Driver，工业相机不支持V4L2
+</cell></row><row><cell>
+ 
+</cell><cell>OpenCV
+</cell><cell>N/A，专用Driver，工业相机不支持V4L2
+</cell></row><row><cell>Encoder
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>FFmpeg
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>Gstreamer
+</cell><cell>
+ 
+</cell></row><row><cell>Decoder
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>FFmpeg
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>Gstreamer
+</cell><cell>
+ 
+</cell></row><row><cell>Stream
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>FFmpeg
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>Gstreamer
+</cell><cell>
+ 
+</cell></row><row><cell>Local Stream Server
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>FFmpeg(ffserver)
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>GStreamer(multicast)
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>live555
+</cell><cell>
+ 
+</cell></row><row><cell>click me</cell><cell>click me</cell><cell>click me</cell></row></table><table char_offset="352" col_max="400" col_min="40"><row><cell>序号
+</cell><cell>测试环境
+</cell><cell>测试描述
+</cell><cell>测试结果
+</cell></row><row><cell>1
+</cell><cell>主机：  
+     1x办公PC
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory:
+软件：
+     Ubuntu OS
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Logitech C170 Camera
+
+ 
+</cell><cell>Capture/Encode/Stream/Server/Play全部在办公PC上；
+没有Decode；
+流格式flv，720p 60fps；
+</cell><cell>音视频播放流畅， 图像声音延时约2～4秒
+</cell></row><row><cell>2
+</cell><cell>主机：  
+     1x办公PC:
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory
+软件：
+     Ubuntu OS
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Wildlife.mp4
+</cell><cell>Decode/Encode/Stream/Server/Play全部在办公PC上；
+没有Capture；
+流格式flv，720p 60fps；
+</cell><cell>音视频播放流畅，非实时流，延时无法判断
+</cell></row><row><cell>3
+</cell><cell>主机：  
+     1x办公PC
+     1x virtualbox
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory:
+软件：
+     Ubuntu OS
+     Window 7
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Logitech C170 Camera
+
+ 
+</cell><cell>Capture/Encode/Stream/Server部署办公PC Host上；
+Play部署在virtualbox上；
+Virtualbox Bridge network；
+没有Decode；
+流格式flv，720p 60fps；
+
+ 
+</cell><cell>音视频播放流畅， 图像声音延时约8～10秒
+</cell></row><row><cell>4
+</cell><cell>主机：  
+     1x办公PC:
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory
+软件：
+     Ubuntu OS
+     Window 7
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Wildlife.mp4
+</cell><cell>Capture/Encode/Stream/Server全部在办公PC上；
+Play部署在virtualbox上；
+Virtualbox Bridge network；
+没有Decode；
+流格式flv，720p 60fps；
+
+ 
+</cell><cell>音视频播放流畅，非实时流，延时无法判断
+</cell></row><row><cell>5
+</cell><cell>主机：  
+     1xJetson TK1
+     1x办公PC:
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory
+软件：
+     Linux 4 Tegra
+     Ubuntu OS
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Logitech C170 Camera
+
+ 
+
+ 
+</cell><cell>Capture/Encode/Stream/Server部署在TK1上；
+Play部署在办公PC上；
+TK1，办公PC接入同一个路由器；
+流格式flv，720p 60fps；
+</cell><cell>视频音频卡顿严重，基本无法使用
+</cell></row><row><cell>6
+</cell><cell>主机：  
+     1xJetson TK1
+     1x办公PC:
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory
+软件：
+     Linux 4 Tegra
+     Ubuntu OS
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Wildlife.mp4
+
+ 
+
+ 
+</cell><cell>Capture/Encode/Stream/Server部署在TK1上；
+Play部署在办公PC上；
+TK1，办公PC接入同一个路由器；
+流格式flv，720p 60fps；
+</cell><cell>视频音频卡顿严重，基本无法使用
+</cell></row><row><cell>7
+</cell><cell>主机：  
+     1xJetson TK1
+     1x办公PC:
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory
+软件：
+     Linux 4 Tegra
+     Ubuntu OS
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Logitech C170 Camera
+
+ 
+
+ 
+</cell><cell>Capture/Encode/Stream部署在TK1上；
+Server/Play部署在办公PC上；
+TK1，办公PC接入公司网络；
+流格式flv，720p 60fps；
+</cell><cell>视频音频卡顿严重，基本无法使用
+</cell></row><row><cell>8
+</cell><cell>主机：  
+     1xJetson TK1
+     1x办公PC:
+     i7-4770 CPU @ 3.40GHz
+     16GB Memory
+软件：
+     Linux 4 Tegra
+     Ubuntu OS
+     FFmpeg
+     ffserver
+     ffplay
+Video Source:
+     Wildlife.mp4
+
+ 
+
+ 
+</cell><cell>Capture/Encode/Stream部署在TK1上；
+Server/Play部署在办公PC上；
+TK1，办公PC接入公司网络；
+流格式flv，720p 60fps；
+</cell><cell>视频音频卡顿严重，基本无法使用
+</cell></row><row><cell>
+ 
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>
+ 
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell><cell>
+ 
+</cell></row><row><cell>click me</cell><cell>click me</cell><cell>click me</cell><cell>click me</cell></row></table></node></node><node name="Resource" prog_lang="custom-colors" readonly="False" tags="" unique_id="29"><rich_text>
+</rich_text><rich_text link="webs http://dev.px4.io/">http://dev.px4.io/</rich_text><rich_text>
+
+</rich_text><rich_text link="webs https://github.com/amix/vimrc.git">https://github.com/amix/vimrc.git</rich_text><rich_text>
+</rich_text></node><node name="tmp" prog_lang="custom-colors" readonly="False" tags="" unique_id="30"><rich_text> ./ffmpeg -i ~/Share/Wildlife.mp4 -i ~/Share/Wildlife.mp4 -i ~/Share/Wildlife.mp4 -i ~/Share/Wildlife.mp4 \
+-filter_complex &quot;[0:0]pad=iw*2:ih*2[a];[1:0]negate[b];[2:0]hflip[c];[3:0]edgedetect[d];[a][b]overlay=w[x];[x][c]overlay=0:h[y];[y][d]overlay=w:h&quot; \
+-y -t 5 ~/Share/Wildlife-complex.mp4
+
+ ./ffmpeg -f lavfi -i testsrc=duration=30:size=1280x720:rate=30 ~/Share/testsrc.mp4
+
+./ffmpeg -f lavfi -i &quot;smptebars=duration=5:size=1280x720:rate=30&quot; ~/Share/testsrc_smptebars.mp4
+
+./ffmpeg -f lavfi -i color=c=red^Cize=100x100 -t 10 ~/Share/testsrc_color.mp4
+
+./ffplay -f lavfi -i &quot;testsrc=duration=10:size=1280x720:rate=30&quot;
+
+</rich_text><rich_text link="webs http://trac.ffmpeg.org/wiki/FancyFilteringExamples">http://trac.ffmpeg.org/wiki/FancyFilteringExamples</rich_text><rich_text>
+
+
+ffmpeg 转码H.264 High Profile的输入做直播时会有卡顿的现象；而且设定的帧率也达不到；
+是因为解码H.264 HP的速度达不到造成的。
+将编译时的“--disable-optimizations”去掉就可以了；</rich_text></node></cherrytree>
