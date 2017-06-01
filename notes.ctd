@@ -5313,7 +5313,14 @@ cap: 640x480, 30fps
  export LD_LIBRARY_PATH=/home/mingliangwu/usr/local/ffmpeg/lib:/home/mingliangwu/usr/local/lib:$LD_LIBRARY_PATH
  ~/usr/local/ffmpeg/bin/ffmpeg -s 1920x1080 -r 30 -f x11grab -i :0.0 -f alsa -ac 2 -ar 44100 -i pulse -qscale 0.01 -t 15 ~/Share/record_3.mp4
  
- ~/usr/local/ffmpeg/bin/ffmpeg -s 1920x1080 -r 30 -f x11grab -i :0.0 -f alsa -ac 2 -ar 44100 -i pulse -qscale 0.01 -crf 40 -t 60 ~/Share/record_4.mp4</rich_text></node><node name="tmp1" prog_lang="custom-colors" readonly="False" tags="" unique_id="39"><rich_text>gst-launch-1.0 videotestsrc ! avenc_mpeg4 ! rtpmp4vpay ! udpsink host=127.0.0.1 port=5000
+ ~/usr/local/ffmpeg/bin/ffmpeg -s 1920x1080 -r 30 -f x11grab -i :0.0 -f alsa -ac 2 -ar 44100 -i pulse -qscale 0.01 -crf 40 -t 60 ~/Share/record_4.mp4</rich_text></node><node name="tmp1" prog_lang="custom-colors" readonly="False" tags="" unique_id="39"><rich_text>gst-launch-0.10 filesrc location=test.jpg ! jpegdec ! ffmpegcolorspace ! video/x-raw-yuv,width=704,height=574,format=\(fourcc\)UYVY ! filesink location=test.yuv
+gst-launch-0.10 filesrc location=test.yuv ! video/x-raw-yuv,width=704,height=574,format=\(fourcc\)UYVY framerate=1 ! ffmpegcolorspace ! video/x-raw-rgb,width=704,height=574,framerate=1,bpp=32,depth=24 ! autovideosink
+
+gst-launch-0.10 filesrc location=test.yuv ! video/x-raw-yuv,width=704,height=574,format=\(fourcc\)UYVY ! ffmpegcolorspace ! video/x-raw-rgb,bpp=32,depth=24 ! jpegenc ! filesink location=test0.jpg
+
+~/usr/local/ffmpeg/bin/ffplay -f rawvideo -video_size 704x574 test.yuv
+
+gst-launch-1.0 videotestsrc ! avenc_mpeg4 ! rtpmp4vpay ! udpsink host=127.0.0.1 port=5000
 
 gst-launch-1.0 udpsrc uri=udp://127.0.0.1:5000 caps=&quot;application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)MP4V-ES, profile-level-id=(string)1, config=(string)000001b001000001b58913000001000000012000c48d88007d0a041e1463000001b24c61766335322e3132332e30, payload=(int)96, ssrc=(uint)298758266, clock-base=(uint)3097828288, seqnum-base=(uint)63478&quot; ! rtpmp4vdepay ! avdec_mpeg4 ! autovideosink
 
@@ -5415,6 +5422,7 @@ gst-launch-1.0 videotestsrc ! 'video/x-raw, format=(string)UYVY, width=(int)1280
 
 gst-launch-1.0 v4l2src device=&quot;/dev/video1&quot; ! nvvidconv ! video/x-raw, width=1280, height=720  ! xvimagesink
 
+gst-launch-1.0 videotestsrc ! </rich_text><rich_text foreground="#000000">video/x-raw-yuv,framerate=10/1, width=200, height=150</rich_text><rich_text> ! autovideosink
 5、TX1合成４画面推流
 
 5.1 文件，硬解码，硬缩放，硬编码
@@ -5675,6 +5683,39 @@ rm -rf *
 --with-arch-32=i686
 </rich_text></node><node name="os" prog_lang="custom-colors" readonly="False" tags="" unique_id="69"><rich_text weight="heavy">启动工作原理</rich_text><rich_text>
 刚接触操作系统的时候觉得这个最神秘，到底里面做了什么，怎么就成了个操作系统，它到底有什么用，为什么要引进来着个东东。学了之后才知道，原来最根本的思想还是源于汇编里面的跳转和压栈，以调用一个函数为例，编译后的汇编肯定是先通过SP压入当前代码段地址然后就是保存一些寄存器的值放栈里面（51单片机好像不是这样），然后执行程序，完了之后，出栈把寄存器恢复，最后把原来存的代码段地址付给PC然后回到原来的程序，这是汇编执行函数的做法，而操作系统人为强行的模拟这样操作，把代码写成不同代码块假定为A、B，要相互之间执行似乎不受影响，是这么实现的，假设首先代码在A中执行，代码段一直往下指，如果我要执行B，首先把A的代码段压入栈，所有的寄存器值存入A的栈，然后让SP强行指到B的栈执行出栈操作，把寄存器恢复成B的，B的代码段地址放入PC，这样就B在执行，如果又要A接着上次执行，又强行把B的寄存器、当前代码段地址压入B的栈，然后SP强行指到A的栈恢复的时候恢复成A最近一次保存的东西（和函数调用不同每次切换栈里面的东西是随机的），这样，可以很自由的在A、B中切换，如果切换足够快，A、B看以来好像同时在执行，这就是并行，A、B就是任务。如果这个切操作放到定时器函数中来做，就可以严格按照时间来切换，这就是操作系统雏形。另外，各个任务之间有存在一定的关系，有逻辑上的先后等，必须引进全局的结构体、变量来标记一些信息，全局的这些数据是不会被释放的，所以所有的任务可以去通过读、写这些数据来实现各个程序块交流信息，实现所谓的同步、互斥。这就是操作系统的原理，而这些不同的通信方式按功能细分就成事件管理、内存管理啥玩意。有这些基本的管理就是一个只有内核操作系统了。配上文件系统、图形界面这些个模块功能就能做出想Window这样的东东。只有引入操作系统才能更好的写程序，才能让性能发挥到极致。具体到uCOSII也是这样：首先是主函数，然后是OSInit(),这个函数就是对那些全局的数据结构初始化，建立希望的链表等数据结构，为后面全局变量通信做好准备，并且创建了1-2个系统任务（空闲任务必须，统计任务可选），而所谓的创建任务OSTaskCreate(另外在这个系统里还有个OSTaskCreateExt也是一种创建任务函数，只不过多了些检测栈、清楚栈的功能而已)就是把一个函数，的函数地址、自己的栈建立联系、优先级啥弄好为任务切换做好准备。设置好定时切换的相关信息类似定时器，按照节拍在中断中进行任务切换判断、发生切换，这个时候还没有开启开关，所以的任务创建完成后，启动多任务函数OSStart(),这个函数是让SP指到其中的一个站然后出栈就跳到一个任务函数里去了，接下来就是正常的任务运行了。
+</rich_text></node><node name="top" prog_lang="custom-colors" readonly="False" tags="" unique_id="85"><rich_text>1、绑定进程到指定的CPU
+
+      </rich_text><rich_text link="webs http://lib.csdn.net/base/linux">Linux</rich_text><rich_text>提供一个接口，可以将进程绑定到特定的CPU：
+#include &lt;sched.h&gt;
+int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *set);
+int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *set);
+参数：
+pid：进程的id号，如果pid为0，则表示本进程
+cpusetsize：set的大小
+set：运行进程的CPU，可以通过以下函数操作set：
+void CPU_ZERO(cpu_set_t *set); // Clears set, so that it contains no CPUs.
+void CPU_SET(int cpu, cpu_set_t *set); // Add CPU cpu to set.
+void CPU_CLR(int cpu, cpu_set_t *set); // Remove CPU cpu from set.
+int  CPU_ISSET(int cpu, cpu_set_t *set); // Test to see if CPU cpu is a member of set.
+int  CPU_COUNT(cpu_set_t * mask); //Return the number of CPUs in set.
+      进程绑定到指定CPU的演示程序如下：
+</rich_text><rich_text foreground="#333333">      </rich_text><rich_text link="webs http://lib.csdn.net/base/softwaretest">测试</rich_text><rich_text>：编译程序，之后运行，我编译出的文件名为a.out，执行下列命令，得到a.out的PID：ps –elf | grep a.out</rich_text><rich_text foreground="#333333">，之后输入命令：</rich_text><rich_text>top  -p  进程ID</rich_text><rich_text foreground="#333333">，接着输入f，选择P选项(移到P处，按下空格)，按ESC退出，具体过程如下：</rich_text><rich_text>
+
+
+      此时可以看到进程在cpu 0123之间不停切换：
+</rich_text><rich_text link="webs http://7vzqs9.com1.z0.glb.clouddn.com/wp-content/uploads/2016/03/Selection_0013.png">
+</rich_text><rich_text>
+2、绑定线程到指定的CPU
+      不仅仅进程可以绑定到CPU，线程也可以。Linux提供一个接口，可以将线程绑定到特定的CPU：
+#include &lt;pthread.h&gt;
+int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize, const cpu_set_t *cpuset);
+int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize, cpu_set_t *cpuset);
+      该接口与进程绑定到CPU的接口的使用方法基本一致。
+      当进程绑定到特定的CPU之后，线程还是可以绑定到其他的CPU的，没有冲突。
+      示例代码如下：
+      测试：编译程序，之后运行，我编译出的文件名为a.out，执行下列命令，得到a.out的PID：ps –elf | grep a.out，之后输入命令：top -H -p  进程ID，接着输入f，选择P选项(移到P处，按下空格)和nTH选项，按ESC退出，具体过程如下：
+</rich_text><rich_text foreground="#333333">      可以看到主线程一直保持在cpu0，一个线程在cpu12之前切换，另一个线程一直保持在cpu3：</rich_text><rich_text>
+</rich_text><rich_text foreground="#333333" link="webs http://7vzqs9.com1.z0.glb.clouddn.com/wp-content/uploads/2016/03/Selection_0041.png">
 </rich_text></node></node><node name="Make" prog_lang="custom-colors" readonly="False" tags="" unique_id="42"><rich_text>gcc -c src/hello_world_static.c -I./include -o out/hello_world_static.o
 ar rc lib/libhello_world.a out/hello_world_static.o
 
@@ -6446,7 +6487,151 @@ TARGET_LINK_LIBRARIES(
   ${OpenCV_LIBS}
   ${CERES_LIBRARIES}
   ${PLATFORM_SPECIFIC_LIBS}
-)</rich_text></node></node><node name="ADAS" prog_lang="custom-colors" readonly="False" tags="" unique_id="63"><rich_text></rich_text><node name="Video Card Soc" prog_lang="custom-colors" readonly="False" tags="" unique_id="50"><rich_text>1、Nvidia　TX1
+)</rich_text></node><node name="template" prog_lang="custom-colors" readonly="False" tags="" unique_id="84"><rich_text>
+</rich_text><rich_text scale="h1">1、生成可执行文件的makefile</rich_text><rich_text>
+######################################
+#
+######################################
+#source file
+#源文件，自动找所有.c和.cpp文件，并将目标定义为同名.o文件
+SOURCE  := $(wildcard *.c) $(wildcard *.cpp)
+OBJS    := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE)))
+  
+#target you can change test to what you want
+#目标文件名，输入任意你想要的执行文件名
+TARGET  := test
+  
+#compile and lib parameter
+#编译参数
+CC      := gcc
+LIBS    :=
+LDFLAGS :=
+DEFINES :=
+INCLUDE := -I.
+CFLAGS  := -g -Wall -O3 $(DEFINES) $(INCLUDE)
+CXXFLAGS:= $(CFLAGS) -DHAVE_CONFIG_H
+  
+  
+#i think you should do anything here
+#下面的基本上不需要做任何改动了
+.PHONY : everything objs clean veryclean rebuild
+  
+everything : $(TARGET)
+  
+all : $(TARGET)
+  
+objs : $(OBJS)
+  
+rebuild: veryclean everything
+                
+clean :
+    rm -fr *.so
+    rm -fr *.o
+    
+veryclean : clean
+    rm -fr $(TARGET)
+  
+$(TARGET) : $(OBJS)
+    $(CC) $(CXXFLAGS) -o $@ $(OBJS) $(LDFLAGS) $(LIBS)
+
+</rich_text><rich_text scale="h1">2、生成静态链接库的makefile</rich_text><rich_text>
+######################################
+#
+#
+######################################
+  
+#target you can change test to what you want
+#共享库文件名，lib*.a
+TARGET  := libtest.a
+  
+#compile and lib parameter
+#编译参数
+CC      := gcc
+AR      = ar
+RANLIB  = ranlib
+LIBS    :=
+LDFLAGS :=
+DEFINES :=
+INCLUDE := -I.
+CFLAGS  := -g -Wall -O3 $(DEFINES) $(INCLUDE)
+CXXFLAGS:= $(CFLAGS) -DHAVE_CONFIG_H
+  
+#i think you should do anything here
+#下面的基本上不需要做任何改动了
+  
+#source file
+#源文件，自动找所有.c和.cpp文件，并将目标定义为同名.o文件
+SOURCE  := $(wildcard *.c) $(wildcard *.cpp)
+OBJS    := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE)))
+  
+.PHONY : everything objs clean veryclean rebuild
+  
+everything : $(TARGET)
+  
+all : $(TARGET)
+  
+objs : $(OBJS)
+  
+rebuild: veryclean everything
+                
+clean :
+    rm -fr *.o
+    
+veryclean : clean
+    rm -fr $(TARGET)
+  
+$(TARGET) : $(OBJS)
+    $(AR) cru $(TARGET) $(OBJS)
+    $(RANLIB) $(TARGET)
+
+</rich_text><rich_text scale="h1">3、生成动态链接库的makefile</rich_text><rich_text>
+######################################
+#
+#
+######################################
+  
+#target you can change test to what you want
+#共享库文件名，lib*.so
+TARGET  := libtest.so
+  
+#compile and lib parameter
+#编译参数
+CC      := gcc
+LIBS    :=
+LDFLAGS :=
+DEFINES :=
+INCLUDE := -I.
+CFLAGS  := -g -Wall -O3 $(DEFINES) $(INCLUDE)
+CXXFLAGS:= $(CFLAGS) -DHAVE_CONFIG_H
+SHARE   := -fPIC -shared -o
+  
+#i think you should do anything here
+#下面的基本上不需要做任何改动了
+  
+#source file
+#源文件，自动找所有.c和.cpp文件，并将目标定义为同名.o文件
+SOURCE  := $(wildcard *.c) $(wildcard *.cpp)
+OBJS    := $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCE)))
+  
+.PHONY : everything objs clean veryclean rebuild
+  
+everything : $(TARGET)
+  
+all : $(TARGET)
+  
+objs : $(OBJS)
+  
+rebuild: veryclean everything
+                
+clean :
+    rm -fr *.o
+    
+veryclean : clean
+    rm -fr $(TARGET)
+  
+$(TARGET) : $(OBJS)
+    $(CC) $(CXXFLAGS) $(SHARE) $@ $(OBJS) $(LDFLAGS) $(LIBS)
+ </rich_text></node></node><node name="ADAS" prog_lang="custom-colors" readonly="False" tags="" unique_id="63"><rich_text></rich_text><node name="Video Card Soc" prog_lang="custom-colors" readonly="False" tags="" unique_id="50"><rich_text>1、Nvidia　TX1
 
 
 </rich_text><rich_text scale="h3">Ports &amp; Peripherals</rich_text><rich_text>
@@ -8067,7 +8252,167 @@ int main(int argc, char** argv) {
     }  
 
     return 0;  
-}  </codebox></node></node><node name="tmp3" prog_lang="custom-colors" readonly="False" tags="" unique_id="45"><rich_text>  cd ~
+}  </codebox></node><node name="v4l2_ipu" prog_lang="custom-colors" readonly="False" tags="" unique_id="81"><rich_text foreground="#252525">source /opt/fsl-imx-x11/3.14.52-1.1.0/environment-setup-cortexa9hf-vfp-neon-poky-linux-gnueabi</rich_text><rich_text>
+
+-I/home/tangb/my-imx6/02_source/linux-3.14.52/include/uapi -I/home/tangb/my-imx6/02_source/linux-3.14.52/tools/include
+
+
+-L$(HOME)/my-imx6/05_rootfs/distro-fsl-image/usr/lib -lCLC -lOpenCL
+
+sudo cp -ar ~/my-imx6/05_rootfs/distro-fsl-image/usr/lib/libCLC* /opt/fsl-imx-x11/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi/usr/lib/
+
+sudo cp -ar ~/my-imx6/05_rootfs/distro-fsl-image/usr/lib/libOpenCL* /opt/fsl-imx-x11/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi/usr/lib/</rich_text></node><node name="eigen" prog_lang="custom-colors" readonly="False" tags="" unique_id="82"><rich_text link="webs http://eigen.tuxfamily.org/index.php?title=How_to_run_the_benchmark_suite">http://eigen.tuxfamily.org/index.php?title=How_to_run_the_benchmark_suite</rich_text><rich_text>
+
+hg clone </rich_text><rich_text link="webs https://bitbucket.org/eigen/eigen/">https://bitbucket.org/eigen/eigen/</rich_text><rich_text>
+
+cd eigen
+
+</rich_text><rich_text foreground="#c20cb9">mkdir</rich_text><rich_text> build
+</rich_text><rich_text foreground="#7a0874">cd</rich_text><rich_text> build
+
+//absolute path to eigen
+cmake /home/mingliangwu/workspace/eigen -DCMAKE_BUILD_TYPE=Release -DEIGEN_BUILD_BTL=ON -DEIGEN3_INCLUDE_DIR=/home/mingliangwu/workspace/eigen
+</rich_text><rich_text foreground="#7a0874">cd</rich_text><rich_text> bench</rich_text><rich_text foreground="#000000">/</rich_text><rich_text>btl
+
+OMP_NUM_THREADS=1 ctest -V
+</rich_text><rich_text foreground="#c20cb9">mkdir</rich_text><rich_text> data</rich_text><rich_text foreground="#000000">/</rich_text><rich_text>set1
+
+sudo apt-get install gnuplot
+
+cd data
+.</rich_text><rich_text foreground="#000000">/</rich_text><rich_text>go_mean set1</rich_text><rich_text foreground="#000000">/</rich_text><rich_text>
+
+OMP_NUM_THREADS=8 ctest -V</rich_text></node><node name="cl_helloworld" prog_lang="custom-colors" readonly="False" tags="" unique_id="83"><rich_text>vi /etc/myzr.d/myzr_welcome
+</rich_text><rich_text foreground="#252525">insmod /home/root/my-demo/linux-3.14.52/myimx6-tw68.ko</rich_text><rich_text>
+
+cd /$HOME/my-imx6/02_source
+git clone </rich_text><rich_text link="webs https://github.com/andreluizeng/opencl.git">https://github.com/andreluizeng/opencl.git</rich_text><rich_text>
+
+cp -r /opt/fsl-imx-x11/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi/usr/src/debug/opencv/2.4.11+gitAUTOINC+2c9547e314-r0/git/3rdparty/include/opencl/1.2/CL/ /opt/fsl-imx-x11/3.14.52-1.1.0/sysroots/cortexa9hf-vfp-neon-poky-linux-gnueabi/usr/include/
+source /opt/fsl-imx-x11/3.14.52-1.1.0/environment-setup-cortexa9hf-vfp-neon-poky-linux-gnueabi
+
+cd opencl/ocl_hello_world/src
+
+vim Makefile
++#ROOTFS_DIR = $(SDKTARGETSYSROOT)
++ROOTFS_DIR = $(HOME)/my-imx6/05_rootfs/distro-fsl-image
+
+vim cl_helloworld.cpp
+-       kernel_src-&gt;src =  (char *) malloc (sizeof (char) * kernel_src-&gt;size);
++       kernel_src-&gt;src =  (char *) malloc (sizeof (char) * kernel_src-&gt;size+1);
+
+
+make
+
+scp ../bin/cl_helloworld root@10.120.3.221:/home/root/ckt-demo/
+scp ../kernel/hello_world.cl root@10.120.3.221:/home/root/ckt-demo/
+
+
+进程A，里面有线程a，b，c，线程c调用了函数F。进程B，单线程也调用了函数F。进程A，进程B，同时运行，A中的F调用耗时150ms，B中的F调用耗时30ms
+
+
+1、分辨率
+vi /etc/myzr.d/myzr_welcome
+</rich_text><rich_text foreground="#000000">fbset -fb /dev/fb1 -xres 1024 -yres</rich_text><rich_text> 600
+insmod /home/root/my-demo/linux-3.14.52/myimx6-tw68.ko
+
+２、桌面启动
+
+vi /etc/matchbox/session
+
+SHOWCURSOR=&quot;no&quot;
+
+#matchbox-desktop &amp;
+
+# Lines containing feature-[foo] are removed at build time if the machine
+# doesn't have the feature &quot;foo&quot;.
+
+START_APPLETS=showdesktop,windowselector
+END_APPLETS=clock,battery,$KEYBOARD_APPLET,systray,startup-notify,notify
+
+#matchbox-panel --titlebar --start-applets $START_APPLETS --end-applets $END_APPLETS &amp;
+
+exec matchbox-window-manager -theme Sato -use_desktop_mode decorated -use_cursor $SHOWCURSOR $@
+
+3、
+
+fbset -fb /dev/fb1 -xres 1024 -yres 600               
+insmod /home/root/my-demo/linux-3.14.52/myimx6-tw68.ko
+</rich_text></node><node name="myzr_performance" prog_lang="custom-colors" readonly="False" tags="" unique_id="86"><rich_text>&lt;pre&gt;
+360环视项目实现过程中，性能调优是最关键的过程，从４路采集-&gt;ISP-&gt;拼接-&gt;渲染显示，每一步都环环相扣，要达到比较好的效果，每个环节都需要将性能调试道最优。
+每一步的调优都与硬件平台息息相关，需要用到专有硬件和专用API进行开发，才能充分发挥单板性能。这里对明远智瑞IMX6Q-2G开发板上的调优过程进行记录。
+&lt;/pre&gt;
+
+==='''关键性能指标'''===
+&lt;pre&gt;
+各环节关键指标如下：
+１、采集：支持的分辨率，帧率，视频格式，同时采集多少路，每帧耗时时间
+２、ISP：支持的分辨率，视频格式，每帧耗时时间
+３、拼接：拼接效果，每帧耗时时间
+４、显示：每帧耗时时间
+每个环节需要关注不同的指标，但是耗时是最关键的一个指标，决定最终视频帧率，其他可以根据需求进行适当调整妥协。
+４个环节均采用单独的任务处理，最终帧率＝1000/每帧耗时时间最大值，因此４个环节都有可能成为瓶颈，需要尽可能优化，如果要达到比较好的效果，比如30fps，则每个环节耗时时间不能超过33毫秒。
+&lt;/pre&gt;
+
+==='''实现及调试过程'''===
+
+===='''4路采集'''====
+&lt;pre&gt;
+１、实现方法：明远智睿开发板４路采集转换板，支持V4L2，因此可以采用OpenCV和V4L2两种接口进行开发。优缺点如下：
+　　OpenCV开发便利，并且可以直接进行后续算法的处理实现。
+　　V4L2接口实现则相对复杂
+２、性能对比
+　　OpenCV只能至此600*480分辨率的采集，而且４路总耗时在100毫秒以上，再加上颜色空间转换，总耗时500毫秒以上
+　　V4L2控制力度较强，可以采集７04*574分辨率图像，使用IPU专用API，4路采集加上颜色空间转换，总耗时可以控制再70毫秒左右
+3、调试方法
+　　可以对实际帧率进行统计，方便进行性能调优
+&lt;/pre&gt;
+
+===='''ISP'''====
+&lt;pre&gt;
+ISP主要包括颜色空间转换和缩放，缩放目前暂时没有需求
+１、实现方法：可以直接使用OpenCV中实现的算法，相比其他软件算法性能较高，还可以使用IMX6Q上专有硬件IPU来实现。
+２、性能对比
+　　OpenCV算法实测也需要200毫秒以上。如果是网上其他算法耗时更长
+　　使用IPU，耗时在10毫秒左右，并且可以至此缩放
+３、调试方法
+　　使用IPU提升效率的关键一点是，在V4L2采集时，直接使用IPU中分配的内存映射到V4L2中，获取的图像直接送入IPU处理，才能够达到最高性能。
+即采集/ISP串行处理，全部使用IPU内存交换。
+&lt;/pre&gt;
+
+===='''拼接'''====
+&lt;pre&gt;
+算法主要问题是如何加速，减少耗时时间。
+１、实现方法：可以自己在CPU上进行运算，同时也可以使用OpenCL库在GPU上进行并行运算
+２、性能对比
+　　CPU：目前算法耗时在150毫秒左右
+　　OpenCL:　耗时可以降到100毫秒左右
+３、调试方法：
+　　OpenCL中要对所有的函数调用耗时进行测试，包括写参数，执行算法，读出数据，每个函数可能耗时时间不一样，可以针对性的测试优化。
+网上针对OpenCL的优化方法可以借鉴，但是最重要是实测数据，实测数据如下：
+    clCreateBuffer：使用CL_MEM_USE_HOST_PTR内存方式，写入内存时，并且使用IPU分配内存，耗时能够降到１毫秒以下，但是内存需要对齐，即所有使用这个标志的参数所占内存大小要一样，否则段错误
+　　clEnqueueReadBuffer：使用clEnqueueMapBuffer替代，耗时能够降到20毫秒左右
+　　clEnqueueNDRangeKernel：使用clFinish之后，再调用读函数，这样确保能够读到正确的数据，并且这样才能正确的统计到clEnqueueNDRangeKernel和clEnqueueReadBuffer的真实耗时时间
+&lt;/pre&gt;
+
+===='''显示'''====
+&lt;pre&gt;
+１、实现方法：可以使用QT进行开发，开发相对简单，而且容易开发用户交互界面，但效率低下。也可以使用IMX专有API进行视频绘制，效率高，但是不易交互。
+２、性能对比
+　　QT：目前测试每帧耗时１20毫秒左右
+　　G2D API：暂时未实现
+３、调试方法：
+　　可以对实际帧率进行统计，方便进行性能调优
+&lt;/pre&gt;
+
+==='''总结'''===
+&lt;pre&gt;
+１、实现方案的选择直接决定了性能的优劣，优先选择硬件平台专有加速方案
+２、测试过程中反复对比测试，找到每个环节的最终瓶颈，针对性优化
+３、调试过程中，可以参考其他资料进行优化，但不可尽信书，应以实测数据为准，反复实验各种参数，以达到该平台上最优
+４、对真实数据进行统计，方便调试
+
+&lt;/pre&gt;</rich_text></node></node><node name="tmp3" prog_lang="custom-colors" readonly="False" tags="" unique_id="45"><rich_text>  cd ~
   svn co https://llvm.org/svn/llvm-project/llvm/branches/release_37 llvm3.7
   svn co https://llvm.org/svn/llvm-project/cfe/branches/release_37 llvm3.7/tools/clang
   cd llvm3.7
@@ -8211,7 +8556,11 @@ nvidia-smi dmon -i 0
 </rich_text><rich_text link="webs https://www.kernel.org/">https://www.kernel.org/</rich_text><rich_text>
 
 
-nginx drupal</rich_text></node><node name="tmp2" prog_lang="custom-colors" readonly="False" tags="" unique_id="40"><rich_text>
+nginx drupal
+
+awk '{printf &quot;%3.1f C\n&quot;, $1/1000}' </rich_text><rich_text foreground="#444444">/sys/class/thermal/thermal_zone0/temp</rich_text><rich_text>
+
+</rich_text><rich_text foreground="#111111">git push origin local_branch:remote_branch</rich_text></node><node name="tmp2" prog_lang="custom-colors" readonly="False" tags="" unique_id="40"><rich_text>
 </rich_text><rich_text scale="h2">JAVA 中的内存泄露</rich_text><rich_text>
     Java中的内存泄露，广义并通俗的说，就是：不再会被使用的对象的内存不能被回收，就是内存泄露。
     Java中的内存泄露与C++中的表现有所不同。
